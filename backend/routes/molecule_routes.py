@@ -13,6 +13,9 @@ def get_db():
 
 @router.post("/generate", response_model=GenerationRecord)
 async def generate_molecule_from_text(request: MoleculeGenerationRequest, db=Depends(get_db)):
+    if not request.prompt or not request.prompt.strip():
+        raise HTTPException(status_code=422, detail="Prompt cannot be empty")
+    
     try:
         results = await generate_molecules(request.prompt, request.models)
         
