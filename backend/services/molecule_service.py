@@ -1,7 +1,7 @@
 import asyncio
 import random
 from typing import List
-from .models import SingleModelResult
+from models import SingleModelResult
 
 # Mock data for demonstration purposes since actual endpoints weren't provided in the prompt
 # In a real scenario, these would call the user's external APIs
