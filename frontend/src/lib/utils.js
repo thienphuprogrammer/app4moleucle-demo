@@ -12,7 +12,14 @@ export function getApiUrl(path) {
         baseUrl = baseUrl.replace('http:', 'https:');
         console.log('Fixed baseUrl to HTTPS:', baseUrl);
     }
-    const finalUrl = `${baseUrl}${path}`;
+    
+    // Ensure path ends with trailing slash to avoid server redirects
+    let finalPath = path;
+    if (path.endsWith('/') === false && !path.includes('?')) {
+        finalPath = path + '/';
+    }
+    
+    const finalUrl = `${baseUrl}${finalPath}`;
     console.log('Final API URL:', finalUrl);
     return finalUrl;
 }
