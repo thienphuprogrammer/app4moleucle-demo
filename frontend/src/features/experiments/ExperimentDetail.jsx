@@ -11,7 +11,7 @@ import Molecule3DViewer from '@/components/Molecule3DViewer';
 import { format } from 'date-fns';
 import { cn } from "@/lib/utils";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api/experiments";
+const API = import.meta.env.REACT_APP_BACKEND_URL + "/api/experiments";
 
 export default function ExperimentDetail() {
   const { id } = useParams();
