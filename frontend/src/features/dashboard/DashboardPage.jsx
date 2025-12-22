@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
-const DASHBOARD_API = process.env.REACT_APP_BACKEND_URL + "/api/molecules";
+const DASHBOARD_API = import.meta.env.REACT_APP_BACKEND_URL + "/api/molecules";
 
 export default function DashboardPage() {
   const [prompt, setPrompt] = useState("");
