@@ -107,6 +107,37 @@ class MoleculeAPITester:
             data={"prompt": "", "models": ["model_a"]}
         )
 
+    def test_3d_structure_generation(self):
+        """Test 3D structure generation endpoint"""
+        # Test with aspirin SMILES
+        aspirin_smiles = "CC(=O)OC1=CC=CC=C1C(=O)O"
+        success, response = self.run_test(
+            "3D Structure Generation - Aspirin",
+            "GET",
+            f"api/molecules/3d?smiles={aspirin_smiles}",
+            200
+        )
+        
+        if success and 'sdf' in response:
+            print(f"✅ SDF data received (length: {len(response['sdf'])} chars)")
+            # Check if SDF contains expected structure data
+            sdf_content = response['sdf']
+            if "RDKit" in sdf_content and "V2000" in sdf_content:
+                print("✅ Valid SDF format detected")
+            else:
+                print("⚠️  SDF format may be invalid")
+        
+        return success, response
+
+    def test_3d_structure_invalid_smiles(self):
+        """Test 3D structure generation with invalid SMILES"""
+        return self.run_test(
+            "3D Structure Generation - Invalid SMILES",
+            "GET",
+            "api/molecules/3d?smiles=INVALID_SMILES",
+            400  # Bad request expected
+        )
+
 def main():
     print("🧪 Starting Molecule API Testing...")
     print("=" * 50)
