@@ -1,19 +1,22 @@
 import { useEffect } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
+import DashboardPage from "./features/dashboard/DashboardPage";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" theme="dark" />
-    </div>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <div className="App">
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+            </Routes>
+          </BrowserRouter>
+          <Toaster position="top-right" />
+        </div>
+    </ThemeProvider>
   );
 }
 
