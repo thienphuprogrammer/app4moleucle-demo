@@ -9,9 +9,10 @@ import axios from 'axios';
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Loader2, Sparkles, CheckCircle2, ChevronRight, ChevronLeft,
-  LayoutList, Box, Maximize2
+  LayoutList, Box, Maximize2, Quote, Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const DASHBOARD_API = process.env.REACT_APP_BACKEND_URL + "/api/molecules";
 
@@ -22,9 +23,10 @@ export default function DashboardPage() {
   const [results, setResults] = useState([]);
   const [history, setHistory] = useState([]);
   const [activeSmiles, setActiveSmiles] = useState(null); 
-  const [activeModel, setActiveModel] = useState(null); // Track which model is active
-  const [mode, setMode] = useState("generate"); // generate | edit
-  const [isResultListOpen, setIsResultListOpen] = useState(true); // Toggle comparison list
+  const [activeModel, setActiveModel] = useState(null); 
+  const [activeRecord, setActiveRecord] = useState(null); // Track the full record for context
+  const [mode, setMode] = useState("generate"); 
+  const [isResultListOpen, setIsResultListOpen] = useState(true); 
 
   const debouncedSmiles = useDebounce(activeSmiles, 800);
 
@@ -41,7 +43,13 @@ export default function DashboardPage() {
         const first = res.data.results[0];
         setActiveSmiles(first.smiles);
         setActiveModel(first.model_name);
-        setIsResultListOpen(true); // Open list on new generation
+        // Create a temporary record object for immediate display
+        setActiveRecord({
+            prompt: prompt,
+            created_at: new Date().toISOString(),
+            results: res.data.results
+        });
+        setIsResultListOpen(true);
         toast.success("Molecule generated successfully");
       }
       fetchHistory();
@@ -76,6 +84,7 @@ export default function DashboardPage() {
                 setActiveSmiles(first.smiles);
                 setActiveModel(first.model_name);
             }
+            setActiveRecord(record);
             setPrompt(record.prompt);
         }}
         mode={mode}
@@ -206,7 +215,6 @@ export default function DashboardPage() {
                        <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-0.5 rounded-md">interactive</span>
                    </div>
                    
-                   {/* Toggle Results List Button */}
                    {mode === 'generate' && results.length > 0 && (
                        <Button 
                           variant="outline" 
@@ -226,20 +234,38 @@ export default function DashboardPage() {
                      animate={{ opacity: 1, y: 0 }}
                      className="w-full h-full flex gap-6 relative"
                    >
-                      {/* Main Viewer - Takes remaining space */}
+                      {/* Main Viewer */}
                       <div className="flex-1 flex flex-col gap-4 min-w-0 transition-all duration-300">
                          <div className="flex-1 rounded-2xl overflow-hidden border-2 border-border/50 shadow-lg bg-card relative group hover:border-primary/30 transition-all">
                             <Molecule3DViewer smiles={debouncedSmiles || activeSmiles} className="w-full h-full" />
                             
                             {/* Active Model Label */}
                             {activeModel && (
-                                <div className="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1.5 rounded-lg border border-border shadow-sm flex items-center gap-2">
+                                <div className="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1.5 rounded-lg border border-border shadow-sm flex items-center gap-2 z-10">
                                     <Box className="w-3.5 h-3.5 text-primary" />
                                     <span className="text-xs font-bold uppercase">{activeModel.replace('_', ' ')}</span>
                                 </div>
                             )}
 
-                            {/* Expand/Maximize Button (Mockup) */}
+                             {/* CONTEXT CARD - NEW FEATURE */}
+                             {activeRecord && (
+                                <div className="absolute bottom-4 left-4 right-4 bg-background/80 backdrop-blur-md p-4 rounded-xl border border-border shadow-lg flex flex-col gap-2 z-10 max-w-[500px] animate-in slide-in-from-bottom-5">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                        <Quote className="w-3 h-3 text-primary" />
+                                        <span>Source Description</span>
+                                        {activeRecord.created_at && (
+                                            <span className="ml-auto flex items-center gap-1 font-normal opacity-70">
+                                                <Calendar className="w-3 h-3" />
+                                                {format(new Date(activeRecord.created_at), 'MMM d, h:mm a')}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm font-medium text-foreground italic line-clamp-2">
+                                        "{activeRecord.prompt}"
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button size="icon" variant="secondary" className="h-8 w-8 rounded-lg bg-background/80 backdrop-blur shadow-sm">
                                     <Maximize2 className="w-4 h-4" />
@@ -260,7 +286,7 @@ export default function DashboardPage() {
                          )}
                       </div>
 
-                      {/* Collapsible Results List (Sidebar Style) */}
+                      {/* Collapsible Results List */}
                       <AnimatePresence>
                       {mode === 'generate' && results.length > 0 && isResultListOpen && (
                          <motion.div 
@@ -291,7 +317,6 @@ export default function DashboardPage() {
                                             }}
                                        >
                                            <div className="h-32 rounded-lg overflow-hidden bg-background relative pointer-events-none">
-                                               {/* Mini Preview - reusing viewer but static if possible, or just simpler view */}
                                                <Molecule3DViewer smiles={res.smiles} />
                                            </div>
                                            
