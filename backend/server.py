@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from backend.routes import molecule_routes, experiment_routes
+from routes import molecule_routes, experiment_routes
 
 ROOT_DIR = Path(__file__).parent.parent
 load_dotenv(ROOT_DIR / 'backend/.env')
