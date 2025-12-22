@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api/experiments";
+const API = import.meta.env.REACT_APP_BACKEND_URL + "/api/experiments";
 
 export default function ExperimentsPage() {
   const [experiments, setExperiments] = useState([]);
