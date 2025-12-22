@@ -26,7 +26,7 @@ const Molecule3DViewer = ({ smiles, className, overlaySmiles }) => {
         // 1. Load Main Molecule
         if (smiles) {
              try {
-                const response = await axios.get(`${import.meta.env.REACT_APP_BACKEND_URL}/api/molecules/3d`, {
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/molecules/3d`, {
                     params: { smiles }
                 });
                 
@@ -41,7 +41,7 @@ const Molecule3DViewer = ({ smiles, className, overlaySmiles }) => {
         // 2. Load Overlay Molecule (Comparison)
         if (overlaySmiles) {
              try {
-                const response = await axios.get(`${import.meta.env.REACT_APP_BACKEND_URL}/api/molecules/3d`, {
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/molecules/3d`, {
                     params: { smiles: overlaySmiles }
                 });
                 
