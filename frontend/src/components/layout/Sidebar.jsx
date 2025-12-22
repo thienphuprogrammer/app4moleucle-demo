@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -6,9 +6,12 @@ import {
   FlaskConical, LayoutGrid, FileText, BookOpen, X 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggleCollapse, isMobile, isOpen, onClose }) {
-  const [activeItem, setActiveItem] = useState("Dashboard");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activePath = location.pathname;
 
   // Mobile Drawer Wrapper
   if (isMobile) {
@@ -38,8 +41,8 @@ export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggl
                          <SidebarContent 
                             history={history} 
                             onHistoryClick={(r) => { onHistoryClick(r); onClose(); }} 
-                            activeItem={activeItem} 
-                            setActiveItem={setActiveItem} 
+                            activePath={activePath}
+                            navigate={navigate}
                             isCollapsed={false}
                             isMobile={true}
                             onClose={onClose}
@@ -64,8 +67,8 @@ export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggl
         <SidebarContent 
             history={history} 
             onHistoryClick={onHistoryClick} 
-            activeItem={activeItem} 
-            setActiveItem={setActiveItem} 
+            activePath={activePath}
+            navigate={navigate}
             isCollapsed={isCollapsed}
             toggleCollapse={toggleCollapse}
         />
@@ -74,12 +77,12 @@ export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggl
 }
 
 // Extracted Content to reuse for both Mobile and Desktop
-function SidebarContent({ history, onHistoryClick, activeItem, setActiveItem, isCollapsed, toggleCollapse, isMobile, onClose }) {
+function SidebarContent({ history, onHistoryClick, activePath, navigate, isCollapsed, toggleCollapse, isMobile, onClose }) {
     return (
         <>
             {/* Brand Header */}
             <div className={cn("h-16 flex items-center border-b border-border/50", isCollapsed ? "justify-center" : "px-6 justify-between")}>
-                <div className="flex items-center gap-3 text-primary">
+                <div className="flex items-center gap-3 text-primary cursor-pointer" onClick={() => navigate('/')}>
                 <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full animate-pulse" />
                     <Atom className="w-8 h-8 relative z-10" />
@@ -116,81 +119,83 @@ function SidebarContent({ history, onHistoryClick, activeItem, setActiveItem, is
                 <NavItem 
                     icon={<LayoutGrid className="w-5 h-5"/>} 
                     label="Dashboard" 
-                    active={activeItem === "Dashboard"} 
+                    active={activePath === "/"} 
                     collapsed={isCollapsed} 
-                    onClick={() => setActiveItem("Dashboard")}
+                    onClick={() => navigate('/')}
                 />
                 <NavItem 
                     icon={<FlaskConical className="w-5 h-5"/>} 
                     label="Experiments" 
-                    active={activeItem === "Experiments"} 
+                    active={activePath.startsWith("/experiments")} 
                     collapsed={isCollapsed} 
-                    onClick={() => setActiveItem("Experiments")}
+                    onClick={() => navigate('/experiments')}
                 />
                 <NavItem 
                     icon={<BookOpen className="w-5 h-5"/>} 
                     label="Knowledge Base" 
-                    active={activeItem === "Knowledge"} 
+                    active={activePath === "/knowledge"} 
                     collapsed={isCollapsed} 
-                    onClick={() => setActiveItem("Knowledge")}
+                    onClick={() => navigate('/knowledge')}
                 />
                 <NavItem 
                     icon={<FileText className="w-5 h-5"/>} 
                     label="Reports" 
-                    active={activeItem === "Reports"} 
+                    active={activePath === "/reports"} 
                     collapsed={isCollapsed} 
-                    onClick={() => setActiveItem("Reports")}
+                    onClick={() => navigate('/reports')}
                 />
             </div>
 
             <div className="mx-6 my-2 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-            {/* History Section */}
-            <div className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hide">
-                {!isCollapsed && (
-                    <div className="px-3 flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-bold mb-4">
-                        <History className="w-3.5 h-3.5" /> Recent Synthesis
-                    </div>
-                )}
-                
-                <div className="space-y-1">
-                {history.map((record, i) => (
-                    <motion.div 
-                    key={record.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    onClick={() => onHistoryClick(record)}
-                    className={cn(
-                        "group rounded-xl border border-transparent hover:bg-accent/50 hover:border-border/50 transition-all cursor-pointer relative overflow-hidden",
-                        isCollapsed ? "p-3 flex justify-center" : "p-3"
+            {/* History Section - Only show on Dashboard for now, or adapt */}
+            {activePath === "/" && (
+                <div className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hide">
+                    {!isCollapsed && (
+                        <div className="px-3 flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-bold mb-4">
+                            <History className="w-3.5 h-3.5" /> Recent Synthesis
+                        </div>
                     )}
-                    title={record.prompt}
-                    >
-                        {isCollapsed ? (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary/50 group-hover:bg-primary ring-2 ring-transparent group-hover:ring-primary/20 transition-all" />
-                        ) : (
-                        <>
-                            <div className="text-sm font-medium text-foreground/90 truncate mb-1.5 group-hover:text-primary transition-colors">
-                            {record.prompt}
-                            </div>
-                            <div className="flex gap-1.5">
-                                {record.results.map((r, i) => (
-                                    <span key={i} className="text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono font-medium border border-primary/10">
-                                        {r.model_name.replace('model_', 'M-').toUpperCase()}
-                                    </span>
-                                ))}
-                            </div>
-                        </>
+                    
+                    <div className="space-y-1">
+                    {history.map((record, i) => (
+                        <motion.div 
+                        key={record.id}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        onClick={() => onHistoryClick(record)}
+                        className={cn(
+                            "group rounded-xl border border-transparent hover:bg-accent/50 hover:border-border/50 transition-all cursor-pointer relative overflow-hidden",
+                            isCollapsed ? "p-3 flex justify-center" : "p-3"
                         )}
-                    </motion.div>
-                ))}
+                        title={record.prompt}
+                        >
+                            {isCollapsed ? (
+                                <div className="w-2.5 h-2.5 rounded-full bg-primary/50 group-hover:bg-primary ring-2 ring-transparent group-hover:ring-primary/20 transition-all" />
+                            ) : (
+                            <>
+                                <div className="text-sm font-medium text-foreground/90 truncate mb-1.5 group-hover:text-primary transition-colors">
+                                {record.prompt}
+                                </div>
+                                <div className="flex gap-1.5">
+                                    {record.results.map((r, i) => (
+                                        <span key={i} className="text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono font-medium border border-primary/10">
+                                            {r.model_name.replace('model_', 'M-').toUpperCase()}
+                                        </span>
+                                    ))}
+                                </div>
+                            </>
+                            )}
+                        </motion.div>
+                    ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Footer / Collapse Toggle (Desktop Only) */}
             {!isMobile && (
-                <div className="p-4 border-t border-border/50">
+                <div className={cn("p-4 border-t border-border/50", activePath !== "/" && "mt-auto")}>
                     <Button 
                         variant="ghost" 
                         className={cn(
