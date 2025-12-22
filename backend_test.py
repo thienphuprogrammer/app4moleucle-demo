@@ -169,6 +169,13 @@ def main():
     print("\n🚫 Testing Error Handling...")
     tester.test_invalid_request()
 
+    print("\n🧊 Testing 3D Structure Generation...")
+    success_3d, response_3d = tester.test_3d_structure_generation()
+    if success_3d:
+        print("✅ 3D structure generation working correctly!")
+    
+    tester.test_3d_structure_invalid_smiles()
+
     # Print final results
     print("\n" + "=" * 50)
     print(f"📊 Final Results: {tester.tests_passed}/{tester.tests_run} tests passed")
