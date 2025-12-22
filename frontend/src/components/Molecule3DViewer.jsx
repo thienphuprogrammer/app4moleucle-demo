@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as $3Dmol from '3dmol/build/3Dmol.js';
+import axios from 'axios';
 
-const Molecule3DViewer = ({ smiles, cid, className }) => {
+const Molecule3DViewer = ({ smiles, className }) => {
   const viewerRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -9,49 +10,38 @@ const Molecule3DViewer = ({ smiles, cid, className }) => {
     if (!containerRef.current) return;
 
     // Initialize viewer
+    // Use 'white' or transparent background to let CSS handle theming
     const viewer = $3Dmol.createViewer(containerRef.current, {
-      backgroundColor: '#020408', // Match the void background
+      backgroundColor: 'rgba(0,0,0,0)', 
     });
     viewerRef.current = viewer;
 
     // Load molecule data
     if (smiles) {
-        // Using pubchem for fetching 3D structure from SMILES is a common fallback
-        // Since generating 3D coordinates from SMILES strictly in frontend can be heavy without RDKit.js
-        // 3Dmol has a way to add models from string. 
-        // For accurate 3D, we usually need SDF/MOL with 3D coords.
-        // However, let's try 3Dmol's built-in parsing first.
-        
-        // Wait, 3Dmol doesn't generate 3D coords from SMILES automatically without an external service usually.
-        // But for this MVP, we can try using the 'model' method if we have the data, or fetch from pubchem.
-        
-        // Let's use a public API to get the MOL/SDF for the SMILES to ensure 3D coords
-        // Or assume the backend provides 3D structure.
-        // For now, I will use a simple fetch to a public resolver if pure SMILES is passed.
-        
-        // Actually, 3Dmol viewer does not generate coordinates. 
-        // We will simulate 3D generation by fetching from PubChem for this MVP if only SMILES is present.
-        
         const fetchAndLoad = async () => {
              try {
-                // Using cactus or pubchem
-                const url = `https://cactus.nci.nih.gov/chemical/structure/${encodeURIComponent(smiles)}/file?format=sdf&get3d=true`;
-                const response = await fetch(url);
-                if(response.ok) {
-                    const sdf = await response.text();
+                // Use our own backend proxy/generator instead of external Cactus API
+                // This avoids CORS and improves reliability
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/molecules/3d`, {
+                    params: { smiles }
+                });
+                
+                if(response.data && response.data.sdf) {
+                    const sdf = response.data.sdf;
                     viewer.addModel(sdf, "sdf");
                     viewer.setStyle({}, { stick: { radius: 0.15, colorscheme: "Jmol" }, sphere: { scale: 0.25 } });
                     viewer.zoomTo();
                     viewer.render();
                 } else {
-                    console.error("Failed to fetch 3D structure");
+                    console.error("Failed to generate 3D structure");
                 }
              } catch(e) {
-                 console.error(e);
+                 console.error("3D Generation Error:", e);
+                 // Fallback: Try to render 2D-to-3D via 3Dmol's internal heuristics if SDF fetch fails
+                 // (Though 3Dmol usually needs coords)
              }
         }
         fetchAndLoad();
-
     }
 
     return () => {
@@ -62,11 +52,8 @@ const Molecule3DViewer = ({ smiles, cid, className }) => {
   return (
     <div 
       ref={containerRef} 
-      className={`relative w-full h-full min-h-[400px] border border-slate-800/50 bg-slate-900/20 backdrop-blur-sm rounded-lg overflow-hidden shadow-2xl ${className}`}
+      className={`relative w-full h-full min-h-[300px] bg-transparent ${className}`}
     >
-      <div className="absolute top-4 left-4 z-10 px-2 py-1 bg-black/50 text-lime-400 text-xs font-mono border border-lime-500/20 rounded">
-         3D VIEWER: ACTIVE
-      </div>
     </div>
   );
 };
