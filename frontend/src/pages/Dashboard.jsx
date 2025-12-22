@@ -9,8 +9,9 @@ import {
   Loader2, Atom, FlaskConical, History, Share2, Download, 
   ArrowRightLeft, Eraser, Copy, Info, maximize, Minimize 
 } from "lucide-react";
+import { getApiUrl } from '@/lib/utils';
 
-const DASHBOARD_API = process.env.REACT_APP_BACKEND_URL + "/api/molecules";
+const DASHBOARD_API = getApiUrl("/api/molecules");
 
 const Dashboard = () => {
   const [prompt, setPrompt] = useState("");
