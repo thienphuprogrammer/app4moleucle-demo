@@ -11,10 +11,10 @@ import {
   Loader2, Sparkles, CheckCircle2, ChevronRight, ChevronLeft,
   LayoutList, Box, Maximize2, Quote, Calendar, Edit2, Check, X, RefreshCw, Copy
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getApiUrl } from "@/lib/utils";
 import { format } from "date-fns";
 
-const DASHBOARD_API = process.env.REACT_APP_BACKEND_URL + "/api/molecules";
+const DASHBOARD_API = getApiUrl("/api/molecules");
 
 export default function DashboardPage() {
   const [prompt, setPrompt] = useState("");
