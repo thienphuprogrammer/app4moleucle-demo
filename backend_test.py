@@ -226,6 +226,43 @@ def main():
     
     tester.test_3d_structure_invalid_smiles()
 
+    print("\n🧪 Testing Experiments API...")
+    # Test experiment creation
+    success_exp, exp_response = tester.test_create_experiment()
+    experiment_id = None
+    if success_exp and 'id' in exp_response:
+        experiment_id = exp_response['id']
+        print(f"✅ Created experiment with ID: {experiment_id[:8]}...")
+        
+        # Test experiment listing
+        success_list, list_response = tester.test_list_experiments()
+        if success_list and isinstance(list_response, list):
+            print(f"✅ Found {len(list_response)} experiments in list")
+        
+        # Test experiment detail
+        tester.test_get_experiment_detail(experiment_id)
+        
+        # Test experiment runs (should be empty initially)
+        success_runs, runs_response = tester.test_get_experiment_runs(experiment_id)
+        if success_runs and isinstance(runs_response, list):
+            print(f"✅ Experiment has {len(runs_response)} runs initially")
+        
+        # Test generation within experiment
+        success_gen1, gen1_response = tester.test_generate_in_experiment(experiment_id, "Ethanol")
+        if success_gen1:
+            print("✅ Generated Ethanol in experiment")
+        
+        success_gen2, gen2_response = tester.test_generate_in_experiment(experiment_id, "Methane")
+        if success_gen2:
+            print("✅ Generated Methane in experiment")
+        
+        # Test runs again (should have 2 now)
+        success_runs_final, runs_final_response = tester.test_get_experiment_runs(experiment_id)
+        if success_runs_final and isinstance(runs_final_response, list):
+            print(f"✅ Experiment now has {len(runs_final_response)} runs")
+    else:
+        print("❌ Failed to create experiment, skipping dependent tests")
+
     # Print final results
     print("\n" + "=" * 50)
     print(f"📊 Final Results: {tester.tests_passed}/{tester.tests_run} tests passed")
