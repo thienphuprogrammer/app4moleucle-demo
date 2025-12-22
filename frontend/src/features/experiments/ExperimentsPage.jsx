@@ -29,7 +29,8 @@ export default function ExperimentsPage() {
 
   const fetchExperiments = async () => {
       try {
-          const res = await axios.get(getApiUrl("/api/experiments"));
+          // Add trailing slash to avoid 307 redirect on collection endpoint
+          const res = await axios.get(getApiUrl("/api/experiments/"));
           setExperiments(res.data);
       } catch(e) {
           toast.error("Failed to load experiments");
@@ -41,7 +42,8 @@ export default function ExperimentsPage() {
   const handleCreate = async () => {
       if(!newExpName.trim()) return;
       try {
-          await axios.post(getApiUrl("/api/experiments"), { name: newExpName });
+          // Add trailing slash to avoid 307 redirect
+          await axios.post(getApiUrl("/api/experiments/"), { name: newExpName });
           setNewExpName("");
           setIsDialogOpen(false);
           toast.success("Experiment created");

@@ -7,19 +7,19 @@ export function cn(...inputs) {
 
 export function getApiUrl(path) {
     let baseUrl = process.env.REACT_APP_BACKEND_URL;
-    console.log('Original baseUrl:', baseUrl);
     if (baseUrl && baseUrl.startsWith('http:')) {
         baseUrl = baseUrl.replace('http:', 'https:');
-        console.log('Fixed baseUrl to HTTPS:', baseUrl);
     }
     
-    // Ensure path ends with trailing slash to avoid server redirects
-    let finalPath = path;
-    if (path.endsWith('/') === false && !path.includes('?')) {
-        finalPath = path + '/';
+    // Remove trailing slash from base if present to avoid double slashes
+    if (baseUrl.endsWith('/')) {
+        baseUrl = baseUrl.slice(0, -1);
     }
     
-    const finalUrl = `${baseUrl}${finalPath}`;
-    console.log('Final API URL:', finalUrl);
-    return finalUrl;
+    // Ensure path starts with slash
+    if (!path.startsWith('/')) {
+        path = '/' + path;
+    }
+    
+    return `${baseUrl}${path}`;
 }

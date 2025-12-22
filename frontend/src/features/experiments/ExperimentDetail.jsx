@@ -26,6 +26,7 @@ export default function ExperimentDetail() {
 
   const fetchDetail = async () => {
       try {
+          // No trailing slash for resource IDs to avoid redirect
           const [expRes, runsRes] = await Promise.all([
               axios.get(getApiUrl(`/api/experiments/${id}`)),
               axios.get(getApiUrl(`/api/experiments/${id}/runs`))
@@ -45,6 +46,9 @@ export default function ExperimentDetail() {
       if(!prompt) return;
       setLoading(true);
       try {
+          // Generate endpoint might need slash if it's a "collection" of runs, but here it's an action on ID
+          // @router.post("/{experiment_id}/generate")
+          // usually NO slash
           await axios.post(getApiUrl(`/api/experiments/${id}/generate`), { prompt, models: ["model_a"] });
           setPrompt("");
           toast.success("Generation complete");
