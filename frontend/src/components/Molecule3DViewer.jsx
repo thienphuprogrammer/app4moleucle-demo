@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as $3Dmol from '3dmol/build/3Dmol.js';
 import axios from 'axios';
+import { getApiUrl } from '@/lib/utils';
 
 const Molecule3DViewer = ({ smiles, className, overlaySmiles }) => {
   const viewerRef = useRef(null);
