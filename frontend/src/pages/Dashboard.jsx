@@ -10,7 +10,7 @@ import {
   ArrowRightLeft, Eraser, Copy, Info, maximize, Minimize 
 } from "lucide-react";
 
-const DASHBOARD_API = process.env.REACT_APP_BACKEND_URL + "/api/molecules";
+const DASHBOARD_API = import.meta.env.REACT_APP_BACKEND_URL + "/api/molecules";
 
 const Dashboard = () => {
   const [prompt, setPrompt] = useState("");
