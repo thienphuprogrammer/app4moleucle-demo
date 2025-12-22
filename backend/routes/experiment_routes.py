@@ -9,7 +9,7 @@ from services.molecule_service import generate_molecules
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
 def get_db():
-    from ..server import db
+    from server import db
     return db
 
 @router.post("/", response_model=Experiment)
