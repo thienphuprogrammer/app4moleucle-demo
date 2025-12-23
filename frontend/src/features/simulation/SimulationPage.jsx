@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from "sonner";
 import axios from 'axios';
 import { 
-  Dna, Play, Activity, CheckCircle, AlertCircle, Microscope, Atom 
+  Dna, Play, Activity, CheckCircle, Microscope 
 } from "lucide-react";
 import * as $3Dmol from '3dmol/build/3Dmol.js';
 import { getApiUrl } from '@/lib/utils';
@@ -34,7 +34,6 @@ export default function SimulationPage() {
   const fetchHistory = async () => {
       try {
           const res = await axios.get(getApiUrl("/api/experiments/"));
-          // Flatten runs from experiments or just fetch history
           const histRes = await axios.get(getApiUrl("/api/molecules/history"));
           setHistory(histRes.data);
       } catch(e) {}
@@ -45,13 +44,18 @@ export default function SimulationPage() {
       setLoading(true);
       setResult(null);
       
+      // Ensure container is ready for new render
+      if(viewerRef.current) viewerRef.current.clear();
+
       try {
           const res = await axios.post(getApiUrl("/api/simulation/docking/run"), {
               ligand_smiles: selectedLigand.results[0].smiles,
               target_id: selectedTarget.id
           });
           setResult(res.data);
-          renderResult(res.data);
+          
+          // Delay render slightly to ensure DOM is ready if result state triggers layout change
+          setTimeout(() => renderResult(res.data), 100);
           toast.success("Simulation complete");
       } catch(e) {
           toast.error("Simulation failed");
@@ -61,21 +65,35 @@ export default function SimulationPage() {
   }
 
   const renderResult = (data) => {
-      if(!containerRef.current) return;
-      const viewer = $3Dmol.createViewer(containerRef.current, { backgroundColor: 'white' });
-      viewerRef.current = viewer;
+      if(!containerRef.current) {
+          console.error("Container ref not found");
+          return;
+      }
+      
+      // Always create a new viewer to avoid state issues or clear existing
+      let viewer = viewerRef.current;
+      if (!viewer) {
+          viewer = $3Dmol.createViewer(containerRef.current, { backgroundColor: 'white' });
+          viewerRef.current = viewer;
+      }
+      viewer.clear();
       
       // Add Target (Cartoon)
-      viewer.addModel(data.target_pdb, "pdb");
-      viewer.setStyle({model: 0}, {cartoon: {color: 'spectrum', opacity: 0.8}});
+      if(data.target_pdb) {
+          viewer.addModel(data.target_pdb, "pdb");
+          viewer.setStyle({model: 0}, {cartoon: {color: 'spectrum', opacity: 0.8}});
+      } else {
+          console.warn("No target PDB data");
+      }
       
       // Add Ligand (Stick)
-      viewer.addModel(data.ligand_pdb, "pdb");
-      viewer.setStyle({model: 1}, {stick: {colorscheme: 'greenCarbon', radius: 0.2}});
+      if(data.ligand_pdb) {
+          viewer.addModel(data.ligand_pdb, "pdb");
+          viewer.setStyle({model: 1}, {stick: {colorscheme: 'greenCarbon', radius: 0.2}});
+      } else {
+          console.warn("No ligand PDB data");
+      }
       
-      // Add Surface (optional, heavy)
-      // viewer.addSurface($3Dmol.VDW, {opacity:0.4, color:'white'}, {model:0});
-
       viewer.zoomTo();
       viewer.render();
   }
@@ -159,15 +177,25 @@ export default function SimulationPage() {
 
             {/* Right Panel: Visualization */}
             <div className="flex-1 bg-muted/10 relative p-0 overflow-hidden">
-                {result ? (
-                    <div className="w-full h-full relative">
-                        <div ref={containerRef} className="w-full h-full bg-white" />
-                        
-                        {/* Results Overlay */}
+                <div className="w-full h-full relative">
+                    <div ref={containerRef} className="w-full h-full bg-white relative z-0" />
+                    
+                    {!result && !loading && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground pointer-events-none z-10">
+                            <div className="w-32 h-32 bg-card rounded-full border-4 border-muted flex items-center justify-center mb-6 animate-pulse">
+                                <Dna className="w-12 h-12 opacity-20" />
+                            </div>
+                            <h2 className="text-xl font-bold text-foreground mb-2">Ready for Analysis</h2>
+                            <p className="max-w-md text-sm">Select a ligand and a protein target to begin the molecular docking simulation.</p>
+                        </div>
+                    )}
+
+                    {/* Results Overlay */}
+                    {result && (
                         <motion.div 
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 bg-background/90 backdrop-blur-xl p-6 rounded-2xl border border-border shadow-2xl"
+                            className="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 bg-background/90 backdrop-blur-xl p-6 rounded-2xl border border-border shadow-2xl z-20"
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-bold text-lg">Docking Results</h3>
@@ -194,16 +222,8 @@ export default function SimulationPage() {
                                 </div>
                             </div>
                         </motion.div>
-                    </div>
-                ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
-                        <div className="w-32 h-32 bg-card rounded-full border-4 border-muted flex items-center justify-center mb-6 animate-pulse">
-                            <Dna className="w-12 h-12 opacity-20" />
-                        </div>
-                        <h2 className="text-xl font-bold text-foreground mb-2">Ready for Analysis</h2>
-                        <p className="max-w-md text-sm">Select a ligand and a protein target to begin the molecular docking simulation.</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     </MainLayout>
