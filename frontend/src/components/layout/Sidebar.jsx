@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
   Atom, History, ChevronLeft, ChevronRight, 
-  FlaskConical, LayoutGrid, FileText, BookOpen, X 
+  FlaskConical, LayoutGrid, FileText, BookOpen, X, Microscope 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -131,18 +131,18 @@ function SidebarContent({ history, onHistoryClick, activePath, navigate, isColla
                     onClick={() => navigate('/experiments')}
                 />
                 <NavItem 
+                    icon={<Microscope className="w-5 h-5"/>} 
+                    label="Simulation Lab" 
+                    active={activePath === "/simulation"} 
+                    collapsed={isCollapsed} 
+                    onClick={() => navigate('/simulation')}
+                />
+                <NavItem 
                     icon={<BookOpen className="w-5 h-5"/>} 
                     label="Knowledge Base" 
                     active={activePath === "/knowledge"} 
                     collapsed={isCollapsed} 
                     onClick={() => navigate('/knowledge')}
-                />
-                <NavItem 
-                    icon={<FileText className="w-5 h-5"/>} 
-                    label="Reports" 
-                    active={activePath === "/reports"} 
-                    collapsed={isCollapsed} 
-                    onClick={() => navigate('/reports')}
                 />
             </div>
 

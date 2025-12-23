@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from routes import molecule_routes, experiment_routes, knowledge_routes
+from backend.routes import molecule_routes, experiment_routes, knowledge_routes, simulation_routes
 
 ROOT_DIR = Path(__file__).parent.parent
 load_dotenv(ROOT_DIR / 'backend/.env')
@@ -29,6 +29,7 @@ async def root():
 api_router.include_router(molecule_routes.router)
 api_router.include_router(experiment_routes.router)
 api_router.include_router(knowledge_routes.router)
+api_router.include_router(simulation_routes.router)
 
 # Include the router in the main app
 app.include_router(api_router)
