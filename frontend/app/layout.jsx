@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
-import "@/index.css";
+import "./globals.css";
 import { MainLayout } from "@/components/layout/MainLayout";
 
 export const metadata = {
