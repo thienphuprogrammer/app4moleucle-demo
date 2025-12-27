@@ -2,13 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import axios from 'axios';
+import { getApiUrl } from '@/lib/utils';
 
-export function MainLayout({ children, history, onHistoryClick, mode, setMode }) {
+export function MainLayout({ children, history: initialHistory, onHistoryClick, mode, setMode }) {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [history, setHistory] = useState(initialHistory || []);
     
-    // Custom hook or simple check
+    // Custom hook
     const isMobile = useMediaQuery("(max-width: 768px)");
+
+    // Auto-fetch history if not provided (for non-dashboard pages)
+    useEffect(() => {
+        if (!initialHistory) {
+            const fetchHistory = async () => {
+                try {
+                    const res = await axios.get(getApiUrl("/api/molecules/history"));
+                    setHistory(res.data);
+                } catch(e) {}
+            }
+            fetchHistory();
+        } else {
+            setHistory(initialHistory);
+        }
+    }, [initialHistory]);
 
     return (
         <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans transition-colors duration-300">

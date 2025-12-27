@@ -6,14 +6,14 @@ import axios from 'axios';
 import { 
   FlaskConical, Plus, ChevronLeft, Layers, CheckSquare, Square 
 } from "lucide-react";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
 import Molecule3DViewer from '@/components/Molecule3DViewer';
 import { format } from 'date-fns';
 import { cn, getApiUrl } from "@/lib/utils";
 
 export default function ExperimentDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [experiment, setExperiment] = useState(null);
   const [runs, setRuns] = useState([]);
   const [prompt, setPrompt] = useState("");
@@ -26,7 +26,6 @@ export default function ExperimentDetail() {
 
   const fetchDetail = async () => {
       try {
-          // No trailing slash for resource IDs to avoid redirect
           const [expRes, runsRes] = await Promise.all([
               axios.get(getApiUrl(`/api/experiments/${id}`)),
               axios.get(getApiUrl(`/api/experiments/${id}/runs`))
@@ -35,7 +34,7 @@ export default function ExperimentDetail() {
           setRuns(runsRes.data);
           
           if(runsRes.data.length > 0) {
-              setActiveSmiles(runsRes.data[0].results[0].smiles); // Default to latest
+              setActiveSmiles(runsRes.data[0].results[0].smiles); 
           }
       } catch(e) {
           toast.error("Failed to load experiment");
@@ -46,13 +45,10 @@ export default function ExperimentDetail() {
       if(!prompt) return;
       setLoading(true);
       try {
-          // Generate endpoint might need slash if it's a "collection" of runs, but here it's an action on ID
-          // @router.post("/{experiment_id}/generate")
-          // usually NO slash
           await axios.post(getApiUrl(`/api/experiments/${id}/generate`), { prompt, models: ["model_a"] });
           setPrompt("");
           toast.success("Generation complete");
-          fetchDetail(); // Refresh list
+          fetchDetail(); 
       } catch(e) {
           toast.error("Failed to generate");
       } finally {
@@ -68,8 +64,6 @@ export default function ExperimentDetail() {
           if (overlaySmiles === smiles) setOverlaySmiles(null);
       } else {
           if(newSelected.length >= 2) {
-              // Replace oldest selection? Or just block?
-              // Let's replace the overlay (second item)
               newSelected.pop(); 
           }
           newSelected.push(runId);
@@ -77,9 +71,6 @@ export default function ExperimentDetail() {
       
       setSelectedRunIds(newSelected);
       
-      // Logic for viewer
-      // If 1 item selected -> Main
-      // If 2 items selected -> Main + Overlay
       const selectedRuns = runs.filter(r => newSelected.includes(r.id));
       if (selectedRuns.length > 0) setActiveSmiles(selectedRuns[0].results[0].smiles);
       if (selectedRuns.length > 1) setOverlaySmiles(selectedRuns[1].results[0].smiles);
@@ -87,7 +78,7 @@ export default function ExperimentDetail() {
   }
 
   useEffect(() => {
-      fetchDetail();
+      if(id) fetchDetail();
   }, [id]);
 
   if(!experiment) return <div className="p-8">Loading...</div>
@@ -97,7 +88,7 @@ export default function ExperimentDetail() {
         <div className="flex h-full flex-col">
             {/* Header */}
             <div className="h-16 border-b border-border bg-background/50 flex items-center px-6 gap-4 sticky top-0 z-10 backdrop-blur">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/experiments')}>
+                <Button variant="ghost" size="icon" onClick={() => router.push('/experiments')}>
                     <ChevronLeft className="w-5 h-5" />
                 </Button>
                 <div>

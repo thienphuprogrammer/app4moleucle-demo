@@ -6,7 +6,7 @@ import axios from 'axios';
 import { 
   FlaskConical, Plus, ArrowRight, FolderOpen, Calendar
 } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -25,11 +25,10 @@ export default function ExperimentsPage() {
   const [loading, setLoading] = useState(true);
   const [newExpName, setNewExpName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const fetchExperiments = async () => {
       try {
-          // Add trailing slash to avoid 307 redirect on collection endpoint
           const res = await axios.get(getApiUrl("/api/experiments/"));
           setExperiments(res.data);
       } catch(e) {
@@ -42,7 +41,6 @@ export default function ExperimentsPage() {
   const handleCreate = async () => {
       if(!newExpName.trim()) return;
       try {
-          // Add trailing slash to avoid 307 redirect
           await axios.post(getApiUrl("/api/experiments/"), { name: newExpName });
           setNewExpName("");
           setIsDialogOpen(false);
@@ -97,7 +95,7 @@ export default function ExperimentsPage() {
                 ) : experiments.map(exp => (
                     <div 
                         key={exp.id} 
-                        onClick={() => navigate(`/experiments/${exp.id}`)}
+                        onClick={() => router.push(`/experiments/${exp.id}`)}
                         className="group bg-card border border-border/50 hover:border-primary/50 p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
                     >
                         <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">

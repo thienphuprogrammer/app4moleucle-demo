@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
@@ -6,12 +6,12 @@ import {
   FlaskConical, LayoutGrid, FileText, BookOpen, X, Microscope 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 
 export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggleCollapse, isMobile, isOpen, onClose }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const activePath = location.pathname;
+  const router = useRouter();
+  const pathname = usePathname();
+  const activePath = pathname;
 
   // Mobile Drawer Wrapper
   if (isMobile) {
@@ -40,9 +40,9 @@ export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggl
                     >
                          <SidebarContent 
                             history={history} 
-                            onHistoryClick={(r) => { onHistoryClick(r); onClose(); }} 
+                            onHistoryClick={(r) => { if(onHistoryClick) onHistoryClick(r); onClose(); }} 
                             activePath={activePath}
-                            navigate={navigate}
+                            router={router}
                             isCollapsed={false}
                             isMobile={true}
                             onClose={onClose}
@@ -68,7 +68,7 @@ export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggl
             history={history} 
             onHistoryClick={onHistoryClick} 
             activePath={activePath}
-            navigate={navigate}
+            router={router}
             isCollapsed={isCollapsed}
             toggleCollapse={toggleCollapse}
         />
@@ -77,12 +77,12 @@ export function Sidebar({ className, history, onHistoryClick, isCollapsed, toggl
 }
 
 // Extracted Content to reuse for both Mobile and Desktop
-function SidebarContent({ history, onHistoryClick, activePath, navigate, isCollapsed, toggleCollapse, isMobile, onClose }) {
+function SidebarContent({ history, onHistoryClick, activePath, router, isCollapsed, toggleCollapse, isMobile, onClose }) {
     return (
         <>
             {/* Brand Header */}
             <div className={cn("h-16 flex items-center border-b border-border/50", isCollapsed ? "justify-center" : "px-6 justify-between")}>
-                <div className="flex items-center gap-3 text-primary cursor-pointer" onClick={() => navigate('/')}>
+                <div className="flex items-center gap-3 text-primary cursor-pointer" onClick={() => router.push('/')}>
                 <div className="relative">
                     <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full animate-pulse" />
                     <Atom className="w-8 h-8 relative z-10" />
@@ -121,35 +121,35 @@ function SidebarContent({ history, onHistoryClick, activePath, navigate, isColla
                     label="Dashboard" 
                     active={activePath === "/"} 
                     collapsed={isCollapsed} 
-                    onClick={() => navigate('/')}
+                    onClick={() => router.push('/')}
                 />
                 <NavItem 
                     icon={<FlaskConical className="w-5 h-5"/>} 
                     label="Experiments" 
-                    active={activePath.startsWith("/experiments")} 
+                    active={activePath?.startsWith("/experiments")} 
                     collapsed={isCollapsed} 
-                    onClick={() => navigate('/experiments')}
+                    onClick={() => router.push('/experiments')}
                 />
                 <NavItem 
                     icon={<Microscope className="w-5 h-5"/>} 
                     label="Simulation Lab" 
                     active={activePath === "/simulation"} 
                     collapsed={isCollapsed} 
-                    onClick={() => navigate('/simulation')}
+                    onClick={() => router.push('/simulation')}
                 />
                 <NavItem 
                     icon={<BookOpen className="w-5 h-5"/>} 
                     label="Knowledge Base" 
                     active={activePath === "/knowledge"} 
                     collapsed={isCollapsed} 
-                    onClick={() => navigate('/knowledge')}
+                    onClick={() => router.push('/knowledge')}
                 />
             </div>
 
             <div className="mx-6 my-2 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
             {/* History Section - Only show on Dashboard for now, or adapt */}
-            {activePath === "/" && (
+            {activePath === "/" && history && (
                 <div className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hide">
                     {!isCollapsed && (
                         <div className="px-3 flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-bold mb-4">
@@ -164,7 +164,7 @@ function SidebarContent({ history, onHistoryClick, activePath, navigate, isColla
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05 }}
-                        onClick={() => onHistoryClick(record)}
+                        onClick={() => onHistoryClick && onHistoryClick(record)}
                         className={cn(
                             "group rounded-xl border border-transparent hover:bg-accent/50 hover:border-border/50 transition-all cursor-pointer relative overflow-hidden",
                             isCollapsed ? "p-3 flex justify-center" : "p-3"
