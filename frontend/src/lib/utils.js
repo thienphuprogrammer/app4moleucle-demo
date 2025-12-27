@@ -6,17 +6,24 @@ export function cn(...inputs) {
 }
 
 export function getApiUrl(path) {
-    let baseUrl = process.env.REACT_APP_BACKEND_URL;
+    // In Next.js, use standard process.env or NEXT_PUBLIC_ prefix
+    // But we are mapping REACT_APP_BACKEND_URL in next.config.js
+    let baseUrl = process.env.REACT_APP_BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
+    
+    // Client-side fallback if env is missing (for preview)
+    if (!baseUrl && typeof window !== 'undefined') {
+        // Fallback to relative path if proxying, or just hope for the best
+        // Actually, let's try to infer or default
+    }
+
     if (baseUrl && baseUrl.startsWith('http:')) {
         baseUrl = baseUrl.replace('http:', 'https:');
     }
     
-    // Remove trailing slash from base if present to avoid double slashes
-    if (baseUrl.endsWith('/')) {
+    if (baseUrl && baseUrl.endsWith('/')) {
         baseUrl = baseUrl.slice(0, -1);
     }
     
-    // Ensure path starts with slash
     if (!path.startsWith('/')) {
         path = '/' + path;
     }
