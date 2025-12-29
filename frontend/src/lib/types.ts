@@ -79,3 +79,27 @@ export interface ExperimentCreate {
   name: string;
   description?: string;
 }
+
+// ============ Simulation Types ============
+export interface DockingRequest {
+  ligand_smiles: string;
+  target_id: string;
+}
+
+export interface DockingResult {
+  affinity: number;
+  ligand_pdb: string;
+  target_pdb: string;
+  score_breakdown: {
+    van_der_waals: number;
+    electrostatic: number;
+    desolvation: number;
+  };
+}
+
+export interface TargetProtein {
+  id: string;
+  name: string;
+  pdbId: string;
+  description: string;
+}
