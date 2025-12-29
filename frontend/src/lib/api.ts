@@ -109,4 +109,15 @@ export const experimentsApi = {
   },
 };
 
+// ============ Simulation API ============
+export const simulationApi = {
+  runDocking: async (ligandSmiles: string, targetId: string) => {
+    const response = await api.post('/api/simulation/docking/run', {
+      ligand_smiles: ligandSmiles,
+      target_id: targetId,
+    });
+    return response.data;
+  },
+};
+
 export default api;
