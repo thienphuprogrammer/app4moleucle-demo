@@ -269,6 +269,92 @@ class MoleculeAPITester:
         
         return success, response
 
+    def test_mol2text_aspirin(self):
+        """Test molecule-to-text generation with aspirin SMILES"""
+        aspirin_smiles = "CC(=O)OC1=CC=CC=C1C(=O)O"
+        success, response = self.run_test(
+            "Mol2Text - Aspirin",
+            "POST",
+            "api/knowledge/mol2text",
+            200,
+            data={"smiles": aspirin_smiles}
+        )
+        
+        if success and 'description' in response:
+            print(f"✅ Description received: {response['description'][:100]}...")
+            if response.get('success', False):
+                print("✅ Mol2Text generation successful")
+                if 'aspirin' in response['description'].lower():
+                    print("✅ Aspirin correctly identified in description")
+            else:
+                print(f"⚠️  Mol2Text failed: {response.get('error', 'Unknown error')}")
+        
+        return success, response
+
+    def test_mol2text_ethanol(self):
+        """Test molecule-to-text generation with ethanol SMILES"""
+        ethanol_smiles = "CCO"
+        success, response = self.run_test(
+            "Mol2Text - Ethanol",
+            "POST",
+            "api/knowledge/mol2text",
+            200,
+            data={"smiles": ethanol_smiles}
+        )
+        
+        if success and 'description' in response:
+            print(f"✅ Description received: {response['description'][:100]}...")
+            if response.get('success', False):
+                print("✅ Mol2Text generation successful")
+                if 'ethanol' in response['description'].lower():
+                    print("✅ Ethanol correctly identified in description")
+            else:
+                print(f"⚠️  Mol2Text failed: {response.get('error', 'Unknown error')}")
+        
+        return success, response
+
+    def test_specific_molecule_generation(self):
+        """Test molecule generation with specific models as requested"""
+        success, response = self.run_test(
+            "Generate Molecule - Aromatic Ring with Hydroxyl",
+            "POST",
+            "api/molecules/generate",
+            200,
+            data={"prompt": "A molecule with an aromatic ring and hydroxyl group", "models": ["your_model", "molt5", "chemberta"]}
+        )
+        
+        if success and 'results' in response:
+            print(f"✅ Generated {len(response['results'])} results")
+            for result in response['results']:
+                model_name = result.get('model_name', 'unknown')
+                smiles = result.get('smiles', 'N/A')
+                print(f"  {model_name}: {smiles}")
+        
+        return success, response
+
+    def test_3d_ethanol(self):
+        """Test 3D structure generation for ethanol specifically"""
+        ethanol_smiles = "CCO"
+        success, response = self.run_test(
+            "3D Structure Generation - Ethanol (CCO)",
+            "GET",
+            f"api/molecules/3d?smiles={ethanol_smiles}",
+            200
+        )
+        
+        if success and 'sdf' in response:
+            print(f"✅ SDF data received for ethanol (length: {len(response['sdf'])} chars)")
+            sdf_content = response['sdf']
+            if "RDKit" in sdf_content and "V2000" in sdf_content:
+                print("✅ Valid SDF format detected")
+                # Check for ethanol-specific atoms (2 carbons, 1 oxygen)
+                if sdf_content.count(' C ') >= 2 and sdf_content.count(' O ') >= 1:
+                    print("✅ Expected atoms found in SDF (2 C, 1 O)")
+            else:
+                print("⚠️  SDF format may be invalid")
+        
+        return success, response
+
     # Simulation API Tests
     def test_docking_simulation_covid(self):
         """Test docking simulation with COVID-19 protease"""
