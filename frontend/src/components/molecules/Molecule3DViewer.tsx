@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { moleculesApi } from '@/lib/api';
-import { cn } from '@/lib/utils';
 
 interface Molecule3DViewerProps {
   smiles: string;
@@ -52,12 +51,12 @@ export function Molecule3DViewer({ smiles, className, overlaySmiles }: Molecule3
       if (smiles) {
         try {
           const response = await moleculesApi.get3DStructure(smiles);
-          if (response?.sdf) {
+          if (response && response.sdf) {
             const model = viewer.addModel(response.sdf, 'sdf');
             model.setStyle({}, { stick: { radius: 0.15, colorscheme: 'Jmol' }, sphere: { scale: 0.25 } });
           }
         } catch (e) {
-          console.error('Failed to load molecule:', e);
+          console.error(e);
         }
       }
 
@@ -65,7 +64,7 @@ export function Molecule3DViewer({ smiles, className, overlaySmiles }: Molecule3
       if (overlaySmiles) {
         try {
           const response = await moleculesApi.get3DStructure(overlaySmiles);
-          if (response?.sdf) {
+          if (response && response.sdf) {
             const model = viewer.addModel(response.sdf, 'sdf');
             model.setStyle({}, {
               stick: { radius: 0.15, color: '#00FFFF', opacity: 0.7 },
@@ -73,7 +72,7 @@ export function Molecule3DViewer({ smiles, className, overlaySmiles }: Molecule3
             });
           }
         } catch (e) {
-          console.error('Failed to load overlay molecule:', e);
+          console.error(e);
         }
       }
 
@@ -85,7 +84,7 @@ export function Molecule3DViewer({ smiles, className, overlaySmiles }: Molecule3
   }, [smiles, overlaySmiles, is3DmolLoaded]);
 
   return (
-    <div ref={containerRef} className={cn('relative w-full h-full min-h-[300px] bg-transparent', className)}>
+    <div ref={containerRef} className={`relative w-full h-full min-h-[300px] bg-transparent ${className}`}>
       {!is3DmolLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
