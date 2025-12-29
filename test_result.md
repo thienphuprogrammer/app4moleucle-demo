@@ -115,63 +115,78 @@ user_problem_statement: |
 backend:
   - task: "Text-to-Molecule Generation API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/routes/molecule_routes.py, backend/services/molecule_service.py, backend/services/model_clients.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented multi-model generation with YourModel, MolT5, ChemBERTa clients. Currently using mock responses (models not deployed yet)."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/molecules/generate works correctly. Successfully generated molecules with all 3 models (your_model, molt5, chemberta). External model APIs are using MOCK responses as expected since real models not deployed. Returns proper SMILES structures."
 
   - task: "3D Structure Generation API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/routes/molecule_routes.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Using RDKit to convert SMILES to 3D SDF format"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/molecules/3d?smiles=CCO works perfectly. Generated valid 3D SDF structure for ethanol with correct atom counts (2 C, 1 O). RDKit integration working despite initial warning."
 
   - task: "Knowledge Chatbot API (OpenAI GPT-4o)"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/routes/knowledge_routes.py, backend/services/llm_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Integrated OpenAI GPT-4o via emergentintegrations library for RAG chatbot"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/knowledge/chat works excellently. OpenAI GPT-4o integration successful. Provided detailed, accurate response about aspirin including chemical formula and medical uses. LiteLLM logs confirm successful API calls."
 
   - task: "Molecule-to-Text Generation API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/routes/knowledge_routes.py, backend/services/llm_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented mol2text endpoint using OpenAI GPT-4o to describe molecules"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/knowledge/mol2text works perfectly. Successfully converted aspirin SMILES (CC(=O)OC1=CC=CC=C1C(=O)O) to detailed natural language description. Correctly identified as aspirin/acetylsalicylic acid with structural details."
 
   - task: "Generation History API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/routes/molecule_routes.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Existing functionality for storing and retrieving generation history"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/molecules/history works correctly. Returns generation history with proper structure including IDs, prompts, and results. History is being saved and retrieved successfully."
 
 frontend:
   - task: "Dashboard with Text-to-Molecule UI"
