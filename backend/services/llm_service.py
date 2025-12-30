@@ -1,32 +1,27 @@
 """
 LLM Service for RAG Chatbot and Molecule-to-Text Generation
 
-Using OpenAI GPT-4o via emergentintegrations library
+Using OpenAI GPT-4o via litellm library
 """
 
 import os
 import logging
 from typing import Optional, List, Dict
 from dotenv import load_dotenv
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import litellm
 
 load_dotenv()
 
 logger = logging.getLogger(__name__)
 
 # Get API key from environment
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY') or os.environ.get('EMERGENT_LLM_KEY')
 
+# Configure litellm
+if OPENAI_API_KEY:
+    os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
 
-class MoleculeKnowledgeChat:
-    """RAG-powered chatbot for molecular chemistry knowledge"""
-    
-    def __init__(self, session_id: str):
-        self.session_id = session_id
-        self.chat = LlmChat(
-            api_key=OPENAI_API_KEY,
-            session_id=session_id,
-            system_message="""You are an expert chemistry assistant specializing in molecular science.
+CHEMISTRY_SYSTEM_MESSAGE = """You are an expert chemistry assistant specializing in molecular science.
 You help users understand chemical compounds, molecular structures, and their properties.
 
 When answering questions:
@@ -42,7 +37,27 @@ You have knowledge about:
 - Chemical properties and reactions
 - Safety and handling information
 - Industrial and pharmaceutical applications"""
-        ).with_model("openai", "gpt-4o")
+
+MOL2TEXT_SYSTEM_MESSAGE = """You are an expert chemistry assistant that describes molecular structures.
+
+When given a SMILES notation or molecule name:
+1. Identify the compound (if known)
+2. Describe its structure in simple terms
+3. List key properties (molecular weight, functional groups)
+4. Mention common uses and applications
+5. Include relevant safety information
+
+Provide responses in a structured, educational format."""
+
+
+class MoleculeKnowledgeChat:
+    """RAG-powered chatbot for molecular chemistry knowledge"""
+    
+    def __init__(self, session_id: str):
+        self.session_id = session_id
+        self.messages: List[Dict] = [
+            {"role": "system", "content": CHEMISTRY_SYSTEM_MESSAGE}
+        ]
     
     async def ask(self, question: str, context: Optional[str] = None) -> Dict:
         """Ask a question to the chemistry chatbot"""
@@ -52,12 +67,19 @@ You have knowledge about:
             if context:
                 message_text = f"Context: {context}\n\nQuestion: {question}"
             
-            user_message = UserMessage(text=message_text)
-            response = await self.chat.send_message(user_message)
+            self.messages.append({"role": "user", "content": message_text})
+            
+            response = await litellm.acompletion(
+                model="gpt-4o",
+                messages=self.messages
+            )
+            
+            answer = response.choices[0].message.content
+            self.messages.append({"role": "assistant", "content": answer})
             
             return {
                 'success': True,
-                'answer': response,
+                'answer': answer,
                 'session_id': self.session_id
             }
         except Exception as e:
@@ -73,20 +95,7 @@ class MoleculeToTextGenerator:
     """Generate natural language descriptions from molecules"""
     
     def __init__(self):
-        self.chat = LlmChat(
-            api_key=OPENAI_API_KEY,
-            session_id="mol2text",
-            system_message="""You are an expert chemistry assistant that describes molecular structures.
-
-When given a SMILES notation or molecule name:
-1. Identify the compound (if known)
-2. Describe its structure in simple terms
-3. List key properties (molecular weight, functional groups)
-4. Mention common uses and applications
-5. Include relevant safety information
-
-Provide responses in a structured, educational format."""
-        ).with_model("openai", "gpt-4o")
+        self.system_message = MOL2TEXT_SYSTEM_MESSAGE
     
     async def generate_description(self, smiles: str, additional_info: Optional[str] = None) -> Dict:
         """Generate text description from SMILES"""
@@ -104,13 +113,22 @@ Please provide:
 4. Likely properties and uses
 5. Any notable characteristics"""
             
-            user_message = UserMessage(text=prompt)
-            response = await self.chat.send_message(user_message)
+            messages = [
+                {"role": "system", "content": self.system_message},
+                {"role": "user", "content": prompt}
+            ]
+            
+            response = await litellm.acompletion(
+                model="gpt-4o",
+                messages=messages
+            )
+            
+            description = response.choices[0].message.content
             
             return {
                 'success': True,
                 'smiles': smiles,
-                'description': response
+                'description': description
             }
         except Exception as e:
             logger.error(f"Mol2Text error: {e}")
