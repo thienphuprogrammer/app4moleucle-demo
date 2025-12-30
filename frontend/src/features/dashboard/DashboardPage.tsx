@@ -37,8 +37,10 @@ export function DashboardPage() {
   const [smilesInput, setSmilesInput] = useState('');
   const [mol2textLoading, setMol2textLoading] = useState(false);
   const [mol2textResult, setMol2textResult] = useState<string | null>(null);
+  const [editorSmiles, setEditorSmiles] = useState<string>('');
 
   const debouncedSmiles = useDebounce(activeSmiles, 800);
+  const debouncedEditorSmiles = useDebounce(editorSmiles, 500);
 
   const fetchHistory = useCallback(async () => {
     try {
