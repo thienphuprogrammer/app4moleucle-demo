@@ -244,7 +244,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Dashboard with Text-to-Molecule UI"
+    - "3D Molecule Visualization"
+    - "JSME Molecular Structure Editor"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
