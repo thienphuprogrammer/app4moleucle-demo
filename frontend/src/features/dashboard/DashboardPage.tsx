@@ -324,19 +324,24 @@ export function DashboardPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="h-full rounded-2xl overflow-hidden border border-border/50 shadow-2xl flex items-center justify-center bg-muted/20"
+                className="h-full w-full p-4"
               >
-                <p className="text-muted-foreground">Structure Editor (Coming Soon)</p>
+                <ProStructureEditor 
+                  activeSmiles={editorSmiles} 
+                  setActiveSmiles={setEditorSmiles}
+                  className="h-full"
+                />
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
 
-        {/* Right Panel */}
+        {/* Right Panel - Only show in generate mode */}
+        {mode === 'generate' && (
         <div
           className={cn(
             'flex-1 bg-muted/20 relative flex flex-col p-4 md:p-6 overflow-hidden',
-            mode === 'generate' ? 'h-[50vh] md:h-full border-t md:border-t-0 md:border-l border-border' : 'h-1/2 md:h-full'
+            'h-[50vh] md:h-full border-t md:border-t-0 md:border-l border-border'
           )}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
