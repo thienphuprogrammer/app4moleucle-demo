@@ -283,3 +283,15 @@ agent_communication:
       - RDKit 3D structure generation working despite initial warning
       - All APIs returning proper responses with correct data structures
       - Backend logs show no critical errors, only expected warnings about mock models
+  - agent: "testing"
+    message: |
+      🧪 FRONTEND TESTING INITIATED - Testing JSME + 3Dmol.js molecular structure editor
+      
+      Testing scope:
+      1. Dashboard page loading at https://ewwl37-3000.csb.app/
+      2. GENERATOR vs EDITOR tab switching in header
+      3. JSME Editor panel with toolbar (Undo, Redo, Reset, Copy buttons)
+      4. 3D Preview panel with real-time visualization
+      5. Integration between 2D editor and 3D viewer
+      
+      Will test both generate mode and editor mode functionality.
