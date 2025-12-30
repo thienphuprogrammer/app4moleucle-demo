@@ -159,14 +159,14 @@ export function DashboardPage() {
   return (
     <MainLayout history={history} onHistoryClick={handleHistoryClick} mode={mode} setMode={setMode}>
       <div className="flex-1 relative overflow-hidden flex flex-col md:flex-row h-full">
-        {/* Left Panel */}
+        {/* Left Panel - Generate mode OR Full width Editor in edit mode */}
         <motion.div
           layout
           className={cn(
-            'transition-all duration-500 ease-in-out border-r border-border bg-card/50 z-10 overflow-y-auto flex flex-col relative',
-            mode === 'edit' ? 'w-full md:w-1/2 p-2 md:p-4' : 'w-full md:w-[450px] p-0',
-            mode === 'generate' ? 'h-[50vh] md:h-full' : 'h-1/2 md:h-full',
-            'md:h-full'
+            'transition-all duration-500 ease-in-out z-10 overflow-y-auto flex flex-col relative',
+            mode === 'edit' 
+              ? 'w-full h-full p-2 md:p-4 bg-muted/10' 
+              : 'w-full md:w-[450px] p-0 border-r border-border bg-card/50 h-[50vh] md:h-full'
           )}
         >
           <AnimatePresence mode="wait">
