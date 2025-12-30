@@ -192,10 +192,10 @@ frontend:
   - task: "Dashboard with Text-to-Molecule UI"
     implemented: true
     working: "NA"
-    file: "frontend/src/features/dashboard/DashboardPage.jsx"
+    file: "frontend/src/features/dashboard/DashboardPage.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -204,14 +204,26 @@ frontend:
   - task: "3D Molecule Visualization"
     implemented: true
     working: "NA"
-    file: "frontend/src/components/Molecule3DViewer.jsx"
+    file: "frontend/src/components/molecules/Molecule3DViewer.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Using 3Dmol.js with dynamic loading for SSR compatibility"
+
+  - task: "JSME Molecular Structure Editor"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/molecules/JSMEEditor.tsx, frontend/src/components/molecules/ProStructureEditor.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented JSME editor with 2D drawing capabilities and real-time 3D preview using 3Dmol.js"
 
   - task: "Knowledge Base Chatbot UI"
     implemented: true
