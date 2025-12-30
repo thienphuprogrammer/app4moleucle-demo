@@ -19,7 +19,7 @@
         "issue": "Mixed Content security error - frontend making HTTP requests to HTTPS backend",
         "impact": "Prevents experiment creation and listing from working",
         "fix_priority": "CRITICAL",
-        "error_details": "Mixed Content: The page at 'https://moleculeviz.preview.emergentagent.com/experiments' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint 'http://text2mol.preview.emergentagent.com/api/experiments/'"
+        "error_details": "Mixed Content: The page at 'https://molecule-viewer-3.preview.emergentagent.com/experiments' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint 'http://text2mol.preview.emergentagent.com/api/experiments/'"
       }
     ],
     "minor_warnings": [
