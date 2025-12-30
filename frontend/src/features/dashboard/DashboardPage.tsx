@@ -10,7 +10,7 @@ import {
 
 import { MainLayout } from '@/components/layout';
 import { Button, Input, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
-import { Molecule3DViewer } from '@/components/molecules';
+import { Molecule3DViewer, ProStructureEditor } from '@/components/molecules';
 import { useDebounce } from '@/hooks';
 import { moleculesApi, knowledgeApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
